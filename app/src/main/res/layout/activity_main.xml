@@ -7,6 +7,53 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/TextView16"
+        android:layout_width="0dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="110dp"
+        android:fontFamily="@font/roboto"
+        android:text="Local IP: "
+        android:textAlignment="textStart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wifiInformationTitle" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:fontFamily="@font/roboto"
+        android:text="Tether IP: 192.168.43.1"
+        android:textAlignment="textEnd"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/TextView16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.62"
+        app:layout_constraintStart_toEndOf="@+id/tv_local_ip"
+        app:layout_constraintTop_toTopOf="@+id/TextView16"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/tv_local_ip"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/roboto"
+        android:minWidth="50dp"
+        android:textAlignment="textStart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/TextView16"
+        app:layout_constraintStart_toEndOf="@+id/TextView16"
+        app:layout_constraintTop_toTopOf="@+id/TextView16"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
         android:id="@+id/appName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -663,11 +710,10 @@
 
     <Button
         android:id="@+id/button_start_stop"
-        android:layout_width="300dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="10dp"
+        android:layout_width="137dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginBottom="8dp"
         android:background="#FFFFFF"
         android:fontFamily="@font/roboto_black"
         android:onClick="startStopRecording"
@@ -676,8 +722,27 @@
         android:textColor="#3D5AFE"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/label_interface_time"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_connect_server"
+        android:layout_width="127dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="#FFFFFF"
+        android:fontFamily="@font/roboto_black"
+        android:onClick="connectServer"
+        android:text="@string/connect_title"
+        android:textAlignment="center"
+        android:textColor="#3D5AFE"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/button_start_stop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.531"
+        app:layout_constraintStart_toEndOf="@+id/button_start_stop"
+        app:layout_constraintTop_toTopOf="@+id/button_start_stop"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/label_interface_time"
@@ -685,36 +750,70 @@
         android:layout_height="45dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="5dp"
         android:elegantTextHeight="false"
         android:fontFamily="@font/roboto_black"
         android:gravity="center"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="@string/ready_title" />
 
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="65dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/roboto"
+        android:text="Server IP"
+        android:textAlignment="textStart"
+        android:textColor="#000000"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/sfu_logo" />
+        app:layout_constraintTop_toBottomOf="@+id/TextView16" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="74dp"
-        android:layout_height="38dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/gruvi_logo" />
+    <EditText
+        android:id="@+id/edtxt_server_ip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:digits="0123456789."
+        android:ems="10"
+        android:hint="192.168.43.193"
+        android:inputType="number|numberDecimal"
+        app:layout_constraintBottom_toBottomOf="@+id/textView15"
+        app:layout_constraintStart_toEndOf="@+id/textView15"
+        app:layout_constraintTop_toTopOf="@+id/textView15" />
+
+    <EditText
+        android:id="@+id/edtxt_server_port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:hint="8080"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/textView16"
+        app:layout_constraintStart_toEndOf="@+id/textView16"
+        app:layout_constraintTop_toTopOf="@+id/textView16" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/roboto"
+        android:text="Port"
+        android:textAlignment="textStart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

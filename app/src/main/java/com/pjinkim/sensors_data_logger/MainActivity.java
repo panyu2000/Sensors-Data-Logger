@@ -1,3 +1,4 @@
+
 package com.pjinkim.sensors_data_logger;
 
 import android.Manifest;
@@ -5,24 +6,43 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.net.Network;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.SocketException;
+import java.nio.Buffer;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+// TODO: Fix logging function
+// TODO: Add bluetooth scanning function
+// TODO: Add location results
+// TODO: Stream data back to a PC side client through http (?) and display with a web browser client (?)
 
 public class MainActivity extends AppCompatActivity implements WifiSession.WifiScannerCallback {
 
@@ -58,6 +78,11 @@ public class MainActivity extends AppCompatActivity implements WifiSession.WifiS
     private TextView mLabelWifiAPNums, mLabelWifiScanInterval;
     private TextView mLabelWifiNameSSID, mLabelWifiRSSI;
 
+    // This section is for Server connect
+    private EditText mEditTextServerIP, mEditTextServerPort;
+    private Button mButtonConnectServer;
+    private TextView mLabelLocalIP;
+
     private Button mStartStopButton;
     private TextView mLabelInterfaceTime;
     private Timer mInterfaceTimer = new Timer();
@@ -89,8 +114,51 @@ public class MainActivity extends AppCompatActivity implements WifiSession.WifiS
         // monitor various sensor measurements
         displayIMUSensorMeasurements();
         mLabelInterfaceTime.setText(R.string.ready_title);
+
+        displayLocalIP();
     }
 
+    private void displayLocalIP() {
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        int ip = wifiManager.getConnectionInfo().getIpAddress();
+        mLabelLocalIP.setText(String.format(Locale.US, "%d.%d.%d.%d",
+                (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff)));
+    }
+
+    private PrintWriter mSocketOutStream;
+    private BufferedReader mSocketInStream;
+    private Socket mSocket;
+
+    public void connectServer(View view) {
+        String serverIpStr = mEditTextServerIP.getText().toString().trim();
+        if (serverIpStr.matches("")) {
+            serverIpStr = mEditTextServerIP.getHint().toString().trim();
+        }
+
+        String serverPortStr = mEditTextServerPort.getText().toString().trim();
+        if (serverPortStr.matches("")) {
+            serverPortStr = mEditTextServerPort.getHint().toString().trim();
+        }
+        final int serverPort = Integer.parseInt(serverPortStr);
+        showToast("Connecting to " + serverIpStr + ":" + serverPortStr);
+
+        final String finalServerIpStr = serverIpStr;
+        Thread socketConnectThread = new Thread() {
+            public void run() {
+                try {
+                    mSocket = new Socket();
+                    mSocket.connect(new InetSocketAddress(finalServerIpStr, serverPort), 1000);
+                    mSocketInStream = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
+                    mSocketOutStream = new PrintWriter(mSocket.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showToast("Connection to Server Failed");
+                    mSocket = null;
+                }
+            }
+        };
+        socketConnectThread.start();
+    }
 
     @Override
     protected void onResume() {
@@ -317,8 +385,41 @@ public class MainActivity extends AppCompatActivity implements WifiSession.WifiS
         mLabelWifiNameSSID = (TextView) findViewById(R.id.label_wifi_SSID_name);
         mLabelWifiRSSI = (TextView) findViewById(R.id.label_wifi_RSSI);
 
+        mEditTextServerIP = (EditText)findViewById(R.id.edtxt_server_ip);
+        mEditTextServerPort = (EditText)findViewById(R.id.edtxt_server_port);
+        mButtonConnectServer = (Button)findViewById(R.id.btn_connect_server);
+        mLabelLocalIP = (TextView)findViewById(R.id.tv_local_ip);
+
         mStartStopButton = (Button) findViewById(R.id.button_start_stop);
         mLabelInterfaceTime = (TextView) findViewById(R.id.label_interface_time);
+
+        // Add text filter to server IP edit text field to only accept IP addresses
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end,
+                                       android.text.Spanned dest, int dstart, int dend) {
+                if (end > start) {
+                    String destTxt = dest.toString();
+                    String resultingTxt = destTxt.substring(0, dstart)
+                            + source.subSequence(start, end)
+                            + destTxt.substring(dend);
+                    if (!resultingTxt
+                            .matches("^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3})?)?)?)?)?)?")) {
+                        return "";
+                    } else {
+                        String[] splits = resultingTxt.split("\\.");
+                        for (int i = 0; i < splits.length; i++) {
+                            if (Integer.valueOf(splits[i]) > 255) {
+                                return "";
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+        };
+        mEditTextServerIP.setFilters(filters);
     }
 
 
